@@ -10,15 +10,16 @@
             background-color: #f0f8ff;
             text-align: center;
             margin: 0;
-            padding: 20px;
+            padding: 10px; 
         }
         
         #game-container {
             max-width: 800px;
+            width: 100%;
             height: 620px; 
             margin: 0 auto;
             background: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             position: relative;
@@ -26,21 +27,24 @@
         }
         .status-panel {
             font-size: 18px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: bold;
         }
+        
         .betting-panel {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 5px;
+            flex-wrap: nowrap; 
+            gap: 4px; 
+            width: 100%;
+            overflow-x: auto; 
         }
         
         input, select, button {
-            padding: 10px;
-            font-size: 16px;
+            padding: 10px 8px; 
+            font-size: 14px; 
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
@@ -48,7 +52,7 @@
         }
         
         .target-btn {
-            width: 110px;
+            width: 85px;
             background-color: #f9f9f9;
             color: #333;
             cursor: pointer;
@@ -56,30 +60,33 @@
             padding: 10px 0; 
             text-align: center;
             transition: all 0.2s ease;
+            flex-shrink: 0; 
         }
         .target-btn.active {
             background-color: #ffe6cc;
             border-color: #ff9900;
             color: #ff6600;
-            transform: scale(1.05);
-            box-shadow: 0 0 8px rgba(255, 153, 0, 0.4);
+            transform: scale(1.03);
+            box-shadow: 0 0 6px rgba(255, 153, 0, 0.4);
         }
 
         #bet-amount {
-            width: 90px; 
+            width: 70px; 
             text-align: right;
-            padding-right: 12px; 
+            padding-right: 6px; 
             background-color: #f5f5f5;
             color: #333;
+            flex-shrink: 0;
         }
 
         .bet-ctrl-btn {
-            width: 75px;
+            width: 58px; 
             background-color: #e1e1e1;
             color: #333;
             cursor: pointer;
             padding: 10px 0; 
             text-align: center;
+            flex-shrink: 0;
         }
         .bet-ctrl-btn:hover {
             background-color: #d2d2d2;
@@ -90,13 +97,15 @@
             color: white;
             cursor: pointer;
             border: none;
-            padding: 10px 20px;
-            margin-left: 10px;
+            padding: 10px 12px;
+            margin-left: 4px;
+            flex-shrink: 0;
         }
         button:disabled {
             background-color: #ccc;
             cursor: not-allowed;
         }
+        
         /* 경기장 스타일 */
         #track {
             position: relative;
@@ -138,22 +147,22 @@
             background-color: red;
         }
 
-        /* 💡 결과 메시지 창이 무조건 맨 위(상단)에서부터 정렬되도록 세팅 */
         .msg-area {
             margin-top: 25px;
             min-height: 120px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* 기존 center에서 변경하여 위쪽 정렬 고정 */
+            justify-content: flex-start; 
             align-items: center;
         }
 
-        /* 💡 텍스트 기본 폰트 크기를 h2 수준으로 명확하게 고정 */
+        /* 💡 결과 텍스트 영역의 기본 폰트를 통째로 bold(두껍게) 처리 */
         #result-text {
             margin: 0;
-            font-size: 24px; /* 크기를 통일감 있게 고정 */
+            font-size: 24px; 
             color: #333;
             line-height: 1.5;
+            font-weight: bold; 
         }
 
         #click-overlay {
@@ -183,12 +192,12 @@
         <button id="target-mushroom" class="target-btn active" onclick="selectTarget('mushroom')">주황버섯</button>
         <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
 
-        <div style="margin-left: 10px;"></div>
+        <div style="margin-left: 4px;"></div>
         
         <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
         <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
         <button class="bet-ctrl-btn" onclick="changeBet(100)">+100</button>
-        <button class="bet-ctrl-btn" style="background-color: #ffcc00; width: 65px;" onclick="setBetMax()">MAX</button>
+        <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
 
         <button id="start-btn" onclick="startRace()">경기 시작!</button>
     </div>
@@ -257,12 +266,13 @@
         const resultText = document.getElementById('result-text');
 
         if (isNaN(betAmount) || betAmount < 0) {
-            resultText.innerHTML = `<span style="color:red;">올바른 배팅 금액이 아닙니다.</span>`;
+            resultText.innerHTML = `<span style="color:red; font-weight:bold;">올바른 배팅 금액이 아닙니다.</span>`;
             return;
         }
         
+        // 💡 경고문구 자체에 font-weight:bold 부여, 하단 안내문구만 정상 두께 유지
         if (betAmount > myMeso) {
-            resultText.innerHTML = `<span style="color:red;">보유한 메소보다 많이 걸 수 없습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            resultText.innerHTML = `<span style="color:red; font-weight:bold;">보유한 메소보다 많이 걸 수 없습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "warning_reset";
             document.getElementById('click-overlay').style.display = "block";
             return;
@@ -322,12 +332,13 @@
         const resultText = document.getElementById('result-text');
         const winnerName = winner === "mushroom" ? "주황버섯" : "슬라임";
         
+        // 💡 승리 메시지 및 골드 정산 데이터 텍스트 전체에 강한 bold 자동 동기화
         if (winner === betTarget) {
             const winMeso = betAmount * 2;
             myMeso += winMeso;
-            resultText.innerHTML = `<span style="color:blue;">[${winnerName}] 승리!</span><br>${winMeso}메소를 얻었습니다!<br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            resultText.innerHTML = `<span style="color:blue; font-weight:bold;">[${winnerName}] 승리!</span><br><span style="font-weight:bold;">${winMeso}메소를 얻었습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
         } else {
-            resultText.innerHTML = `<span style="color:red;">[${winnerName}] 승리!</span><br>${betAmount}메소를 잃었습니다.<br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            resultText.innerHTML = `<span style="color:red; font-weight:bold;">[${winnerName}] 승리!</span><br><span style="font-weight:bold;">${betAmount}메소를 잃었습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
         }
 
         document.getElementById('meso-display').innerText = myMeso;
@@ -358,7 +369,7 @@
             document.getElementById('click-overlay').style.display = "none";
         } 
         else if (currentPhase === "broke_step1") {
-            // 💡 폰트 크기를 승리 메시지와 동일하게 대형(24px) 규격으로 통일
+            // 💡 파산 문구 전체 강력 bold 스케일링 보정
             resultText.innerHTML = `<span style="color:#cc0000; font-weight:bold;">당신은 돈을 모두 잃었습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_step2";
         } 
@@ -367,7 +378,7 @@
             document.getElementById('meso-display').innerText = myMeso;
             document.getElementById('bet-amount').value = 0; 
             
-            // 💡 폰트 크기를 승리 메시지와 동일하게 대형(24px) 규격으로 통일
+            // 💡 구제금융 알림 강력 bold 스케일링 보정
             resultText.innerHTML = `<span style="color:#ff6600; font-weight:bold;">신창섭 님께서 당신에게 200메소를 기부했습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_final";
         } 
@@ -381,6 +392,8 @@
             document.getElementById('click-overlay').style.display = "none";
         }
     }
+</script>
+
 </script>
 
 </body>
