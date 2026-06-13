@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>메이플 월드</title>
     <style>
-        /* 💡 모바일 화면 전체의 좌우 스크롤(흔들림)을 원천 차단 */
         html, body {
             overflow-x: hidden;
             position: relative;
@@ -21,13 +20,14 @@
             box-sizing: border-box;
         }
         
+        /* 💡 레이아웃 요소들이 세로로 길어졌으므로 전체 하얀 창 높이를 680px에서 740px로 확장 */
         #game-container {
-            max-width: 800px;
+            max-width: 500px; /* 모바일 전용 느낌을 주기 위해 최대 폭을 500px로 제한 */
             width: 100%;
-            height: 680px; 
+            height: 740px; 
             margin: 0 auto;
             background: white;
-            padding: 15px 10px; /* 좌우 내부 여백을 줄여 공간 확보 */
+            padding: 15px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             position: relative;
@@ -39,39 +39,45 @@
             font-weight: bold;
         }
         
-        /* 💡 모바일 가로폭을 절대 넘지 않도록 간격(gap) 조정 및 가로 크기 100% 고정 */
+        /* 💡 배팅 패널을 세로 정렬(column) 구조로 변경하고 각 층간 간격을 10px로 지정 */
         .betting-panel {
             margin-bottom: 25px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            flex-wrap: nowrap; 
-            gap: 3px; /* 버튼 사이 간격을 3px로 극강 압축 */
+            gap: 10px; 
             width: 100%;
             box-sizing: border-box;
         }
+
+        /* 💡 각 줄(Row)마다 버튼들이 꽉 차고 예쁘게 정렬되도록 공통 래퍼 스타일 지정 */
+        .panel-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            gap: 5px;
+        }
         
-        /* 💡 버튼들의 내부 여백(패딩)을 줄여서 한 줄에 무조건 구겨 넣음 */
         input, select, button {
-            padding: 10px 4px; /* 좌우 패딩을 4px로 줄여 삐져나감 방지 */
-            font-size: 13px; /* 폰트 크기를 아주 미세하게 조절 */
+            padding: 12px 8px; /* 모바일 터치가 편하도록 세로 패딩을 늘림 */
+            font-size: 15px; /* 글씨 크기도 시원하게 키움 */
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
             font-weight: bold; 
         }
         
-        /* 💡 타겟 버튼 너비 소폭 최적화 */
+        /* 💡 1층: 주황버섯 / 슬라임 버튼 (화면 절반씩 채우도록 너비 설정) */
         .target-btn {
-            width: 72px; /* 85px에서 72px로 줄여 공간 확보 */
+            flex: 1;
+            max-width: 150px;
             background-color: #f9f9f9;
             color: #333;
             cursor: pointer;
             border: 2px solid #ccc;
-            padding: 10px 0; 
             text-align: center;
             transition: all 0.2s ease;
-            flex-shrink: 0; 
         }
         .target-btn.active {
             background-color: #ffe6cc;
@@ -81,37 +87,40 @@
             box-shadow: 0 0 6px rgba(255, 153, 0, 0.4);
         }
 
+        /* 💡 2층: 배팅금액 입력창 */
         #bet-amount {
-            width: 62px; /* 70px에서 62px로 압축 */
+            flex: 1.2;
+            max-width: 100px;
             text-align: right;
-            padding-right: 4px; 
+            padding-right: 8px; 
             background-color: #f5f5f5;
             color: #333;
-            flex-shrink: 0;
         }
 
-        /* 💡 조절 버튼들 너비 다이어트 */
+        /* 💡 2층: 금액 조절 버튼들 */
         .bet-ctrl-btn {
-            width: 46px; /* 58px에서 46px로 콤팩트하게 줄임 */
+            flex: 1;
+            max-width: 70px;
             background-color: #e1e1e1;
             color: #333;
             cursor: pointer;
-            padding: 10px 0; 
             text-align: center;
-            flex-shrink: 0;
         }
         .bet-ctrl-btn:hover {
             background-color: #d2d2d2;
         }
         
+        /* 💡 3층: 시작 버튼 (단독으로 존재하며 큼직하게 강조) */
         #start-btn {
+            width: 100%;
+            max-width: 320px;
             background-color: #ff9900;
             color: white;
             cursor: pointer;
             border: none;
-            padding: 10px 8px; /* 시작 버튼도 패딩 압축 */
-            margin-left: 2px;
-            flex-shrink: 0;
+            padding: 14px 0; /* 터치 영역 대폭 대폭 확장 */
+            font-size: 18px; /* 글자 크기 확장 */
+            letter-spacing: 2px;
         }
         button:disabled {
             background-color: #ccc;
@@ -171,7 +180,7 @@
 
         #result-text {
             margin: 0;
-            font-size: 22px; /* 모바일 가독성을 위해 24px에서 22px로 미세 조정 */
+            font-size: 22px; 
             color: #333;
             line-height: 1.5;
             font-weight: bold; 
@@ -201,17 +210,23 @@
     </div>
 
     <div class="betting-panel">
-        <button id="target-mushroom" class="target-btn active" onclick="selectTarget('mushroom')">주황버섯</button>
-        <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
-
-        <div style="margin-left: 2px;"></div>
         
-        <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
-        <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
-        <button class="bet-ctrl-btn" onclick="changeBet(100)">+100</button>
-        <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
+        <div class="panel-row">
+            <button id="target-mushroom" class="target-btn active" onclick="selectTarget('mushroom')">주황버섯</button>
+            <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
+        </div>
 
-        <button id="start-btn" onclick="startRace()">시작</button>
+        <div class="panel-row">
+            <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
+            <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
+            <button class="bet-ctrl-btn" onclick="changeBet(100)">+100</button>
+            <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
+        </div>
+
+        <div class="panel-row">
+            <button id="start-btn" onclick="startRace()">경기 시작</button>
+        </div>
+        
     </div>
 
     <div id="track">
