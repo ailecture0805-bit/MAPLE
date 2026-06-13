@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>메이플 달리기 경주</title>
+    <title>메이플 월드</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -56,17 +56,17 @@
             overflow: hidden;
             margin-top: 20px;
         }
-        .lane {
-            position: relative;
-            height: 100px;
-            border-bottom: 2px dashed #70ad47;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-        }
-        .lane:last-child {
-            border-bottom: none;
-        }
+        .lane:first-child {
+         border-bottom: 2px dashed #70ad47;
+         }
+
+         .lane {
+         position: relative;
+         height: 100px;
+         box-sizing: border-box;
+         display: flex;
+         align-items: center;
+         }
         
         /* 💡 캐릭터 스타일 (WebP 좌우반전 포함) */
         .character {
@@ -93,10 +93,10 @@
 <body>
 
 <div id="game-container">
-    <h1>🍄 메이플 미니 달리기 경주 💧</h1>
+    <h1>헤네시스 비밀 도박장</h1>
     
     <div class="status-panel">
-        내 잔액: <span id="meso-display">2000</span> 메소
+        내 잔액: <span id="meso-display">2000</span>메소
     </div>
 
     <div class="betting-panel">
