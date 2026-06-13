@@ -191,7 +191,7 @@
 
                 announceWinner(winner, betTarget, betAmount);
             }
-        }, 200); // 0.2초(200ms) 마다 실행
+        }, 40); // 0.04초(200ms) 마다 실행
     }
 
     function announceWinner(winner, betTarget, betAmount) {
@@ -201,16 +201,16 @@
         if (winner === betTarget) {
             const winMeso = betAmount * 2;
             myMeso += winMeso;
-            resultText.innerHTML = `🎉 결과: <span style="color:blue;">[${winnerName}]</span> 승리!<br>축하합니다! 배팅에 성공하여 ${winMeso}메소를 획득했습니다!`;
+            resultText.innerHTML = `결과: <span style="color:blue;">[${winnerName}]</span> 승리!<br>${winMeso}메소를 얻었습니다!`;
         } else {
-            resultText.innerHTML = `😭 결과: <span style="color:red;">[${winnerName}]</span> 승리!<br>아쉽게도 배팅에 실패하여 ${betAmount}메소를 잃었습니다.`;
+            resultText.innerHTML = `결과: <span style="color:blue;">[${winnerName}]</span> 승리!<br>${betAmount}메소를 잃었습니다.`;
         }
 
         document.getElementById('meso-display').innerText = myMeso;
 
         // 올인 구제책
         if (myMeso < 100) {
-            alert("메소를 모두 잃으셨군요? 헤네시스의 장로스탄이 500메소를 기부해줬습니다!");
+            alert("메소를 모두 잃으셨군요? 신창섭께서 당신에게 500메소를 기부했습니다!");
             myMeso = 500;
             document.getElementById('meso-display').innerText = myMeso;
         }
