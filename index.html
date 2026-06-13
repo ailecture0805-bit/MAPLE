@@ -20,9 +20,8 @@
             box-sizing: border-box;
         }
         
-        /* 💡 레이아웃 요소들이 세로로 길어졌으므로 전체 하얀 창 높이를 680px에서 740px로 확장 */
         #game-container {
-            max-width: 500px; /* 모바일 전용 느낌을 주기 위해 최대 폭을 500px로 제한 */
+            max-width: 500px; 
             width: 100%;
             height: 740px; 
             margin: 0 auto;
@@ -39,7 +38,6 @@
             font-weight: bold;
         }
         
-        /* 💡 배팅 패널을 세로 정렬(column) 구조로 변경하고 각 층간 간격을 10px로 지정 */
         .betting-panel {
             margin-bottom: 25px;
             display: flex;
@@ -50,7 +48,6 @@
             box-sizing: border-box;
         }
 
-        /* 💡 각 줄(Row)마다 버튼들이 꽉 차고 예쁘게 정렬되도록 공통 래퍼 스타일 지정 */
         .panel-row {
             display: flex;
             justify-content: center;
@@ -60,15 +57,14 @@
         }
         
         input, select, button {
-            padding: 12px 8px; /* 모바일 터치가 편하도록 세로 패딩을 늘림 */
-            font-size: 15px; /* 글씨 크기도 시원하게 키움 */
+            padding: 12px 4px; /* 버튼들이 날씬해짐에 따라 좌우 패딩 미세 압축 */
+            font-size: 14px; /* 가로 압축을 위해 폰트 크기 15px에서 14px로 미세 조정 */
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
             font-weight: bold; 
         }
         
-        /* 💡 1층: 주황버섯 / 슬라임 버튼 (화면 절반씩 채우도록 너비 설정) */
         .target-btn {
             flex: 1;
             max-width: 150px;
@@ -76,8 +72,10 @@
             color: #333;
             cursor: pointer;
             border: 2px solid #ccc;
+            padding: 12px 0; 
             text-align: center;
             transition: all 0.2s ease;
+            flex-shrink: 0; 
         }
         .target-btn.active {
             background-color: #ffe6cc;
@@ -87,30 +85,30 @@
             box-shadow: 0 0 6px rgba(255, 153, 0, 0.4);
         }
 
-        /* 💡 2층: 배팅금액 입력창 */
         #bet-amount {
             flex: 1.2;
-            max-width: 100px;
+            max-width: 80px; /* 버튼이 줄어든 비율에 맞춰 입력창도 예쁘게 균형 조정 */
             text-align: right;
-            padding-right: 8px; 
+            padding-right: 6px; 
             background-color: #f5f5f5;
             color: #333;
+            flex-shrink: 0;
         }
 
-        /* 💡 2층: 금액 조절 버튼들 */
+        /* 💡 -100, +100, MAX 버튼들의 너비를 46px에서 40px로 콤팩트하게 다이어트 */
         .bet-ctrl-btn {
-            flex: 1;
-            max-width: 70px;
+            width: 40px; 
             background-color: #e1e1e1;
             color: #333;
             cursor: pointer;
+            padding: 12px 0; 
             text-align: center;
+            flex-shrink: 0;
         }
         .bet-ctrl-btn:hover {
             background-color: #d2d2d2;
         }
         
-        /* 💡 3층: 시작 버튼 (단독으로 존재하며 큼직하게 강조) */
         #start-btn {
             width: 100%;
             max-width: 320px;
@@ -118,8 +116,8 @@
             color: white;
             cursor: pointer;
             border: none;
-            padding: 14px 0; /* 터치 영역 대폭 대폭 확장 */
-            font-size: 18px; /* 글자 크기 확장 */
+            padding: 14px 0; 
+            font-size: 18px; 
             letter-spacing: 2px;
         }
         button:disabled {
@@ -127,16 +125,15 @@
             cursor: not-allowed;
         }
         
-        /* 경기장 스타일 */
         #track {
             position: relative;
-            width: 100%;
+            width: 340px;
             height: 200px;
             background-color: #e2f0d9; 
             border: 3px solid #70ad47;
             border-radius: 5px;
             overflow: hidden;
-            margin-top: 20px;
+            margin: 20px auto 0 auto; 
             box-sizing: border-box;
         }
         .lane:first-child {
@@ -211,11 +208,13 @@
 
     <div class="betting-panel">
         
+        <!-- 1층: 캐릭터 선택 -->
         <div class="panel-row">
             <button id="target-mushroom" class="target-btn active" onclick="selectTarget('mushroom')">주황버섯</button>
             <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
         </div>
 
+        <!-- 2층: 금액 배팅 (너비가 40px로 얇아진 조절 버튼들 적용) -->
         <div class="panel-row">
             <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
             <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
@@ -223,6 +222,7 @@
             <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
         </div>
 
+        <!-- 3층: 시작 버튼 -->
         <div class="panel-row">
             <button id="start-btn" onclick="startRace()">경기 시작</button>
         </div>
@@ -329,8 +329,8 @@
             slime.style.transition = 'left 0.025s linear';
             
             raceInterval = setInterval(() => {
-                mushroomLeft += Math.floor(Math.random() * 16);
-                slimeLeft += Math.floor(Math.random() * 16);
+                mushroomLeft += Math.floor(Math.random() * 8);
+                slimeLeft += Math.floor(Math.random() * 8);
 
                 mushroom.style.left = mushroomLeft + 'px';
                 slime.style.left = slimeLeft + 'px';
@@ -398,11 +398,12 @@
             currentPhase = "broke_step2";
         } 
         else if (currentPhase === "broke_step2") {
-            myMeso = 200;
+            // 💡 [기부금 패치] 기부금을 200메소에서 500메소로 전격 상향
+            myMeso = 500;
             document.getElementById('meso-display').innerText = myMeso;
             document.getElementById('bet-amount').value = 0; 
             
-            resultText.innerHTML = `<span style="color:#ff6600; font-weight:bold;">신창섭 님께서 당신에게 200메소를 기부했습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            resultText.innerHTML = `<span style="color:#ff6600; font-weight:bold;">신창섭 님께서 당신에게 500메소를 기부했습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_final";
         } 
         else if (currentPhase === "broke_final") {
