@@ -27,23 +27,50 @@
         }
         .betting-panel {
             margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
         }
         input, select, button {
             padding: 10px;
             font-size: 16px;
-            margin: 5px;
             border-radius: 5px;
             border: 1px solid #ccc;
+            box-sizing: border-box;
         }
-        button {
+        
+        /* 💡 배팅 금액 입력창 우측 너비 축소 (80px로 제한) */
+        #bet-amount {
+            width: 80px;
+            text-align: center;
+        }
+
+        /* 💡 배팅 전용 버튼 스타일 (+, -, MAX) */
+        .bet-ctrl-btn {
+            background-color: #e1e1e1;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 10px 14px;
+        }
+        .bet-ctrl-btn:hover {
+            background-color: #d2d2d2;
+        }
+        
+        #start-btn {
             background-color: #ff9900;
             color: white;
             cursor: pointer;
             border: none;
             font-weight: bold;
+            padding: 10px 20px;
+            margin-left: 10px;
         }
         button:disabled {
             background-color: #ccc;
+            cursor: not-allowed;
         }
         /* 경기장 스타일 */
         #track {
@@ -68,15 +95,13 @@
             align-items: center;
         }
         
-        /* 💡 캐릭터 스타일 (transition 시간을 0.04s로 줄여 텔레포트 버그 완벽 수정) */
+        /* 💡 부드러운 애니메이션을 위해 transition을 브라우저 최적화 속도(0.05s)로 세팅 */
         .character {
             position: absolute;
             left: 10px;
             width: 60px;
             height: 60px;
-            transition: left 0.04s linear; /* ◀ 자바스크립트 주기와 일치시켜 렉을 없앱니다 */
-            
-            /* 왼쪽을 바라보는 WebP 이미지를 오른쪽(진행 방향)으로 뒤집어줍니다 */
+            transition: left 0.05s linear; 
             transform: scaleX(-1); 
         }
         
@@ -106,8 +131,11 @@
             <option value="slime">슬라임</option>
         </select>
 
-        <label for="bet-amount">배팅 금액: </label>
+        <label for="bet-amount" style="margin-left: 10px;">금액: </label>
+        <button class="bet-ctrl-btn" onclick="changeBet(-100)">-</button>
         <input type="number" id="bet-amount" value="100" min="100" step="100">
+        <button class="bet-ctrl-btn" onclick="changeBet(100)">+</button>
+        <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
 
         <button id="start-btn" onclick="startRace()">경기 시작!</button>
     </div>
@@ -129,6 +157,29 @@
     let myMeso = 2000;
     let raceInterval;
     let isRacing = false;
+
+    // 💡 금액 증감 (+, -) 함수
+    function changeBet(amount) {
+        if (isRacing) return;
+        const betInput = document.getElementById('bet-amount');
+        let currentBet = parseInt(betInput.value) || 0;
+        let newBet = currentBet + amount;
+        
+        if (newBet < 100) newBet = 100; // 최소 금액 제한
+        if (newBet > myMeso) newBet = Math.floor(myMeso / 100) * 100; // 보유금액 초과 방지 (100단위 끊기)
+        if (myMeso < 100) newBet = 100; // 소지금 부족 시 기본값
+
+        betInput.value = newBet;
+    }
+
+    // 💡 MAX 버튼 함수
+    function setBetMax() {
+        if (isRacing) return;
+        const betInput = document.getElementById('bet-amount');
+        // 보유 머니를 100원 단위로 딱 떨어지게 올인
+        let maxBet = Math.floor(myMeso / 100) * 100;
+        betInput.value = maxBet < 100 ? 100 : maxBet;
+    }
 
     function startRace() {
         if (isRacing) return;
@@ -160,31 +211,27 @@
         let mushroomLeft = 10;
         let slimeLeft = 10;
         
-        // 💡 새 경기를 시작할 때 transition을 잠시 끄고 순간이동 시킨 뒤 복구하여 잔상을 막습니다.
         mushroom.style.transition = 'none';
         slime.style.transition = 'none';
         mushroom.style.left = mushroomLeft + 'px';
         slime.style.left = slimeLeft + 'px';
         
-        // 부드럽게 재적용하기 위해 미세한 딜레이 후 실행
         setTimeout(() => {
-            mushroom.style.transition = 'left 0.04s linear';
-            slime.style.transition = 'left 0.04s linear';
+            mushroom.style.transition = 'left 0.05s linear';
+            slime.style.transition = 'left 0.05s linear';
             
-            // 💡 본격적인 달리기 레이스 주기 설정 (20ms로 세팅하여 시원하게 달리도록 변경)
+            // 💡 [자연스러운 움직임 핵심 개조]
+            // 주기를 0.05초(50ms)로 여유 있게 늦추는 대신, 프레임이 안 끊기도록 transition 시간과 100% 동기화했습니다.
+            // 속도는 기존 미쳐 날뛰던 속도보다 대략 2~3배 정도 편안하고 자연스럽게 늦췄습니다.
             raceInterval = setInterval(() => {
-                // 0~25 사이의 랜덤 정수 이동 (주기가 빨라졌으므로 이동 범위를 균형감 있게 소폭 조정)
-                mushroomLeft += Math.floor(Math.random() * 26);
-                slimeLeft += Math.floor(Math.random() * 26);
+                mushroomLeft += Math.floor(Math.random() * 16);
+                slimeLeft += Math.floor(Math.random() * 16);
 
-                // 화면에 반영
                 mushroom.style.left = mushroomLeft + 'px';
                 slime.style.left = slimeLeft + 'px';
 
-                // 경기장 폭 계산 (결승선 위치 감안)
                 const trackWidth = document.getElementById('track').clientWidth - 80; 
 
-                // 결승선 통과 조건 체크
                 if (mushroomLeft >= trackWidth || slimeLeft >= trackWidth) {
                     clearInterval(raceInterval);
                     isRacing = false;
@@ -199,7 +246,7 @@
 
                     announceWinner(winner, betTarget, betAmount);
                 }
-            }, 20); 
+            }, 50); // 0.05초 주기로 엔진 가동
         }, 10);
     }
 
@@ -217,10 +264,11 @@
 
         document.getElementById('meso-display').innerText = myMeso;
 
-        // 신창섭의 올인 구제책
+        // 💡 올인 구제책 (순차적 팝업 연출 및 1000메소 상향)
         if (myMeso < 100) {
-            alert("메소를 모두 잃으셨군요? 신창섭께서 당신에게 500메소를 기부했습니다!");
-            myMeso = 500;
+            alert("당신은 돈을 모두 잃었습니다");
+            alert("신창섭 님께서 당신에게 1000메소를 기부했습니다");
+            myMeso = 1000; // 1000메소 지급
             document.getElementById('meso-display').innerText = myMeso;
         }
     }
