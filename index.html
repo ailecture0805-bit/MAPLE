@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>메이플 달리기 경주</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f8ff;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+        .status-panel {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        .betting-panel {
+            margin-bottom: 30px;
+        }
+        input, select, button {
+            padding: 10px;
+            font-size: 16px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #ff9900;
+            color: white;
+            cursor: pointer;
+            border: none;
+            font-weight: bold;
+        }
+        button:disabled {
+            background-color: #ccc;
+        }
+        /* 경기장 스타일 */
+        #track {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            background-color: #e2f0d9; /* 헤네시스 느낌 풀밭 색상 */
+            border: 3px solid #70ad47;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        .lane {
+            position: relative;
+            height: 50%,;
+            height: 100px;
+            border-bottom: 2px dashed #70ad47;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
+        .lane:last-child {
+            border-bottom: none;
+        }
+        .character {
+            position: absolute;
+            left: 10px;
+            width: 60px;
+            height: 60px;
+            transition: left 0.2s linear;
+        }
+        .finish-line {
+            position: absolute;
+            right: 20px;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <h1>🍄 메이플 미니 달리기 경주 💧</h1>
+    
+    <div class="status-panel">
+        내 잔액: <span id="meso-display">2000</span> 메소
+    </div>
+
+    <div class="betting-panel">
+        <label for="bet-target">배팅 대상: </label>
+        <select id="bet-target">
+            <option value="mushroom">주황버섯</option>
+            <option value="slime">슬라임</option>
+        </select>
+
+        <label for="bet-amount">배팅 금액: </label>
+        <input type="number" id="bet-amount" value="100" min="100" step="100">
+
+        <button id="start-btn" onclick="startRace()">경기 시작!</button>
+    </div>
+
+    <div id="track">
+        <div class="lane">
+            <img id="mushroom" class="character" src="mushroom.png" alt="주황버섯">
+        </div>
+        <div class="lane">
+            <img id="slime" class="character" src="slime.png" alt="슬라임">
+        </div>
+        <div class="finish-line"></div>
+    </div>
+    
+    <h2 id="result-text" style="margin-top: 20px; color: #333;"></h2>
+</div>
+
+<script>
+    let myMeso = 2000;
+    let raceInterval;
+    let isRacing = false;
+
+    function startRace() {
+        if (isRacing) return;
+
+        const betTarget = document.getElementById('bet-target').value;
+        const betAmount = parseInt(document.getElementById('bet-amount').value);
+        const resultText = document.getElementById('result-text');
+
+        // 유효성 검사
+        if (isNaN(betAmount) || betAmount < 100) {
+            alert("최소 배팅 금액은 100메소입니다!");
+            return;
+        }
+        if (betAmount > myMeso) {
+            alert("보유한 메소보다 많이 걸 수 없습니다!");
+            return;
+        }
+
+        // 배팅 금액 차감 및 상태 변경
+        myMeso -= betAmount;
+        document.getElementById('meso-display').innerText = myMeso;
+        isRacing = true;
+        document.getElementById('start-btn').disabled = true;
+        resultText.innerText = "치열하게 달리는 중...!";
+
+        // 캐릭터 위치 초기화
+        const mushroom = document.getElementById('mushroom');
+        const slime = document.getElementById('slime');
+        let mushroomLeft = 10;
+        let slimeLeft = 10;
+        mushroom.style.left = mushroomLeft + 'px';
+        slime.style.left = slimeLeft + 'px';
+
+        // 경기장 폭 계산 (결승선 위치 감안)
+        const trackWidth = document.getElementById('track').clientWidth - 80; 
+
+        // 0.2초마다 이동 법칙 실행
+        raceInterval = setInterval(() => {
+            // 0~30 사이의 랜덤 정수 이동
+            mushroomLeft += Math.floor(Math.random() * 31);
+            slimeLeft += Math.floor(Math.random() * 31);
+
+            // 화면에 반영
+            mushroom.style.left = mushroomLeft + 'px';
+            slime.style.left = slimeLeft + 'px';
+
+            // 결승선 통과 조건 체크
+            if (mushroomLeft >= trackWidth || slimeLeft >= trackWidth) {
+                clearInterval(raceInterval);
+                isRacing = false;
+                document.getElementById('start-btn').disabled = false;
+
+                let winner = "";
+                if (mushroomLeft === slimeLeft) {
+                    // 극악의 확률로 비겼을 때
+                    winner = Math.random() > 0.5 ? "mushroom" : "slime";
+                } else {
+                    winner = mushroomLeft > slimeLeft ? "mushroom" : "slime";
+                }
+
+                announceWinner(winner, betTarget, betAmount);
+            }
+        }, 200); // 0.2초(200ms) 마다 실행
+    }
+
+    function announceWinner(winner, betTarget, betAmount) {
+        const resultText = document.getElementById('result-text');
+        const winnerName = winner === "mushroom" ? "주황버섯" : "슬라임";
+        
+        if (winner === betTarget) {
+            const winMeso = betAmount * 2;
+            myMeso += winMeso;
+            resultText.innerHTML = `🎉 결과: <span style="color:blue;">[${winnerName}]</span> 승리!<br>축하합니다! 배팅에 성공하여 ${winMeso}메소를 획득했습니다!`;
+        } else {
+            resultText.innerHTML = `😭 결과: <span style="color:red;">[${winnerName}]</span> 승리!<br>아쉽게도 배팅에 실패하여 ${betAmount}메소를 잃었습니다.`;
+        }
+
+        document.getElementById('meso-display').innerText = myMeso;
+
+        // 올인 났을 때 구제책 (우선은 칭찬과 함께 충전)
+        if (myMeso < 100) {
+            alert("메소를 모두 잃으셨군요? 헤네시스의 장로스탄이 500메소를 기부해줬습니다!");
+            myMeso = 500;
+            document.getElementById('meso-display').innerText = myMeso;
+        }
+    }
+</script>
+
+</body>
+</html>
