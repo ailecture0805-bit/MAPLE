@@ -41,9 +41,28 @@
             box-sizing: border-box;
         }
         
+        .target-btn {
+            background-color: #f9f9f9;
+            color: #333;
+            cursor: pointer;
+            font-weight: bold;
+            border: 2px solid #ccc;
+            padding: 10px 16px;
+            transition: all 0.2s ease;
+        }
+        .target-btn.active {
+            background-color: #ffe6cc;
+            border-color: #ff9900;
+            color: #ff6600;
+            transform: scale(1.05);
+            box-shadow: 0 0 8px rgba(255, 153, 0, 0.4);
+        }
+
         #bet-amount {
             width: 80px;
             text-align: center;
+            background-color: #f5f5f5; /* 직접 입력 불가 느낌을 주기 위한 연한 배경색 */
+            color: #333;
         }
 
         .bet-ctrl-btn {
@@ -93,7 +112,6 @@
             align-items: center;
         }
         
-        /* 💡 2배 빠른 속도감에 맞춰 뚝뚝 끊기지 않게 transition 시간을 0.025s로 단축 */
         .character {
             position: absolute;
             left: 10px;
@@ -123,15 +141,14 @@
     </div>
 
     <div class="betting-panel">
-        <label for="bet-target">배팅 대상: </label>
-        <select id="bet-target">
-            <option value="mushroom">주황버섯</option>
-            <option value="slime">슬라임</option>
-        </select>
+        <!-- 💡 '배팅 대상:' 단어 완전히 삭제 -->
+        <button id="target-mushroom" class="target-btn active" onclick="selectTarget('mushroom')">🍄 주황버섯</button>
+        <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">💧 슬라임</button>
 
-        <label for="bet-amount" style="margin-left: 10px;">금액: </label>
+        <label for="bet-amount" style="margin-left: 15px;">금액: </label>
         <button class="bet-ctrl-btn" onclick="changeBet(-100)">-</button>
-        <input type="number" id="bet-amount" value="100" min="100" step="100">
+        <!-- 💡 readonly 속성을 추가하여 키보드로 직접 수치를 기입할 수 없게 차단 -->
+        <input type="number" id="bet-amount" value="100" min="100" step="100" readonly>
         <button class="bet-ctrl-btn" onclick="changeBet(100)">+</button>
         <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
 
@@ -152,10 +169,24 @@
 </div>
 
 <script>
-    // 💡 처음에 시작하는 기본 보유 머니를 1000메소로 하향 조정
     let myMeso = 1000;
     let raceInterval;
     let isRacing = false;
+    let selectedTarget = 'mushroom';
+
+    function selectTarget(target) {
+        if (isRacing) return;
+        selectedTarget = target;
+        
+        document.getElementById('target-mushroom').classList.remove('active');
+        document.getElementById('target-slime').classList.remove('active');
+        
+        if (target === 'mushroom') {
+            document.getElementById('target-mushroom').classList.add('active');
+        } else {
+            document.getElementById('target-slime').classList.add('active');
+        }
+    }
 
     function changeBet(amount) {
         if (isRacing) return;
@@ -180,7 +211,7 @@
     function startRace() {
         if (isRacing) return;
 
-        const betTarget = document.getElementById('bet-target').value;
+        const betTarget = selectedTarget;
         const betAmount = parseInt(document.getElementById('bet-amount').value);
         const resultText = document.getElementById('result-text');
 
@@ -198,7 +229,9 @@
         isRacing = true;
         document.getElementById('start-btn').disabled = true;
         
-        // 💡 진행 중인 문구를 "우우우! 쌀쌀쌀!"로 화끈하게 변경
+        document.getElementById('target-mushroom').disabled = true;
+        document.getElementById('target-slime').disabled = true;
+        
         resultText.innerText = "우우우! 쌀쌀쌀! 🌽🌾";
 
         const mushroom = document.getElementById('mushroom');
@@ -212,11 +245,9 @@
         slime.style.left = slimeLeft + 'px';
         
         setTimeout(() => {
-            // 💡 속도가 2배 빨라졌으므로 렌더링 부드러움을 맞추기 위해 transition 0.025s로 갱신
             mushroom.style.transition = 'left 0.025s linear';
             slime.style.transition = 'left 0.025s linear';
             
-            // 💡 연산 주기를 기존 50ms에서 25ms로 단축시켜 달리기 속도를 정확히 2배 업그레이드!
             raceInterval = setInterval(() => {
                 mushroomLeft += Math.floor(Math.random() * 16);
                 slimeLeft += Math.floor(Math.random() * 16);
@@ -230,6 +261,9 @@
                     clearInterval(raceInterval);
                     isRacing = false;
                     document.getElementById('start-btn').disabled = false;
+                    
+                    document.getElementById('target-mushroom').disabled = false;
+                    document.getElementById('target-slime').disabled = false;
 
                     let winner = "";
                     if (mushroomLeft === slimeLeft) {
@@ -258,13 +292,14 @@
 
         document.getElementById('meso-display').innerText = myMeso;
 
-        // 💡 요청하신 올인 구제 문구 연속 출력 및 신창섭의 기부금 200메소 하향 조정
         if (myMeso < 100) {
             alert("당신은 돈을 모두 잃었습니다.");
             alert("신창섭 님께서 당신에게 200메소를 기부했습니다!");
             
-            myMeso = 200; // 200메소 충전
+            myMeso = 200; 
             document.getElementById('meso-display').innerText = myMeso;
+            
+            selectTarget('mushroom');
         }
     }
 </script>
