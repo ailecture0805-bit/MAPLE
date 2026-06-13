@@ -138,13 +138,22 @@
             background-color: red;
         }
 
+        /* 💡 결과 메시지 창이 무조건 맨 위(상단)에서부터 정렬되도록 세팅 */
         .msg-area {
             margin-top: 25px;
-            min-height: 80px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* 기존 center에서 변경하여 위쪽 정렬 고정 */
             align-items: center;
+        }
+
+        /* 💡 텍스트 기본 폰트 크기를 h2 수준으로 명확하게 고정 */
+        #result-text {
+            margin: 0;
+            font-size: 24px; /* 크기를 통일감 있게 고정 */
+            color: #333;
+            line-height: 1.5;
         }
 
         #click-overlay {
@@ -176,7 +185,6 @@
 
         <div style="margin-left: 10px;"></div>
         
-        <!-- 💡 value 값을 기존 100에서 0으로 변경하여 첫 시작 금액을 0으로 세팅 -->
         <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
         <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
         <button class="bet-ctrl-btn" onclick="changeBet(100)">+100</button>
@@ -196,7 +204,7 @@
     </div>
     
     <div class="msg-area">
-        <h2 id="result-text" style="margin: 0; color: #333; line-height: 1.4;"></h2>
+        <div id="result-text"></div>
     </div>
 </div>
 
@@ -207,7 +215,6 @@
     let selectedTarget = 'mushroom';
     
     let currentPhase = "ready"; 
-    let tempSaveData = {}; 
 
     function selectTarget(target) {
         if (isRacing || currentPhase !== "ready") return;
@@ -250,12 +257,12 @@
         const resultText = document.getElementById('result-text');
 
         if (isNaN(betAmount) || betAmount < 0) {
-            resultText.innerHTML = `<span style="color:red; font-size:18px;">올바른 배팅 금액이 아닙니다.</span>`;
+            resultText.innerHTML = `<span style="color:red;">올바른 배팅 금액이 아닙니다.</span>`;
             return;
         }
         
         if (betAmount > myMeso) {
-            resultText.innerHTML = `<span style="color:red; font-size:18px;">보유한 메소보다 많이 걸 수 없습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            resultText.innerHTML = `<span style="color:red;">보유한 메소보다 많이 걸 수 없습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "warning_reset";
             document.getElementById('click-overlay').style.display = "block";
             return;
@@ -351,7 +358,8 @@
             document.getElementById('click-overlay').style.display = "none";
         } 
         else if (currentPhase === "broke_step1") {
-            resultText.innerHTML = `<span style="color:#cc0000; font-size:20px; font-weight:bold;">당신은 돈을 모두 잃었습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            // 💡 폰트 크기를 승리 메시지와 동일하게 대형(24px) 규격으로 통일
+            resultText.innerHTML = `<span style="color:#cc0000; font-weight:bold;">당신은 돈을 모두 잃었습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_step2";
         } 
         else if (currentPhase === "broke_step2") {
@@ -359,7 +367,8 @@
             document.getElementById('meso-display').innerText = myMeso;
             document.getElementById('bet-amount').value = 0; 
             
-            resultText.innerHTML = `<span style="color:#ff6600; font-size:18px; font-weight:bold;">신창섭 님께서 당신에게 200메소를 기부했습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
+            // 💡 폰트 크기를 승리 메시지와 동일하게 대형(24px) 규격으로 통일
+            resultText.innerHTML = `<span style="color:#ff6600; font-weight:bold;">신창섭 님께서 당신에게 200메소를 기부했습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_final";
         } 
         else if (currentPhase === "broke_final") {
