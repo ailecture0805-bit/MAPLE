@@ -145,6 +145,8 @@
         <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
 
         <div style="margin-left: 10px;"></div>
+        
+        <button class="bet-ctrl-btn" style="background-color: #e6f2ff;" onclick="setBet1000()">1000</button>
         <button class="bet-ctrl-btn" onclick="changeBet(-100)">-</button>
         <input type="number" id="bet-amount" value="100" min="100" step="100" readonly>
         <button class="bet-ctrl-btn" onclick="changeBet(100)">+</button>
@@ -197,6 +199,19 @@
         if (myMeso < 100) newBet = 100; 
 
         sendInput.value = newBet;
+    }
+
+    // 💡 1000메소 즉시 세팅 버튼 기능 (보유 재산 한도 체크)
+    function setBet1000() {
+        if (isRacing) return;
+        const sendInput = document.getElementById('bet-amount');
+        if (myMeso < 1000) {
+            // 1000메소가 안 되면 가지고 있는 전 재산(100단위)으로 세팅
+            let maxBet = Math.floor(myMeso / 100) * 100;
+            sendInput.value = maxBet < 100 ? 100 : maxBet;
+        } else {
+            sendInput.value = 1000;
+        }
     }
 
     function setBetMax() {
