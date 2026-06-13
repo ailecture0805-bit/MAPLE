@@ -57,24 +57,24 @@
             margin-top: 20px;
         }
         .lane:first-child {
-         border-bottom: 2px dashed #70ad47;
-         }
+            border-bottom: 2px dashed #70ad47;
+        }
 
-         .lane {
-         position: relative;
-         height: 100px;
-         box-sizing: border-box;
-         display: flex;
-         align-items: center;
-         }
+        .lane {
+            position: relative;
+            height: 100px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+        }
         
-        /* 💡 캐릭터 스타일 (WebP 좌우반전 포함) */
+        /* 💡 캐릭터 스타일 (transition 시간을 0.04s로 줄여 텔레포트 버그 완벽 수정) */
         .character {
             position: absolute;
             left: 10px;
             width: 60px;
             height: 60px;
-            transition: left 0.2s linear;
+            transition: left 0.04s linear; /* ◀ 자바스크립트 주기와 일치시켜 렉을 없앱니다 */
             
             /* 왼쪽을 바라보는 WebP 이미지를 오른쪽(진행 방향)으로 뒤집어줍니다 */
             transform: scaleX(-1); 
@@ -159,39 +159,48 @@
         const slime = document.getElementById('slime');
         let mushroomLeft = 10;
         let slimeLeft = 10;
+        
+        // 💡 새 경기를 시작할 때 transition을 잠시 끄고 순간이동 시킨 뒤 복구하여 잔상을 막습니다.
+        mushroom.style.transition = 'none';
+        slime.style.transition = 'none';
         mushroom.style.left = mushroomLeft + 'px';
         slime.style.left = slimeLeft + 'px';
+        
+        // 부드럽게 재적용하기 위해 미세한 딜레이 후 실행
+        setTimeout(() => {
+            mushroom.style.transition = 'left 0.04s linear';
+            slime.style.transition = 'left 0.04s linear';
+            
+            // 💡 본격적인 달리기 레이스 주기 설정 (20ms로 세팅하여 시원하게 달리도록 변경)
+            raceInterval = setInterval(() => {
+                // 0~25 사이의 랜덤 정수 이동 (주기가 빨라졌으므로 이동 범위를 균형감 있게 소폭 조정)
+                mushroomLeft += Math.floor(Math.random() * 26);
+                slimeLeft += Math.floor(Math.random() * 26);
 
-        // 경기장 폭 계산 (결승선 위치 감안)
-        const trackWidth = document.getElementById('track').clientWidth - 80; 
+                // 화면에 반영
+                mushroom.style.left = mushroomLeft + 'px';
+                slime.style.left = slimeLeft + 'px';
 
-        // 0.2초마다 이동 법칙 실행
-        raceInterval = setInterval(() => {
-            // 0~30 사이의 랜덤 정수 이동
-            mushroomLeft += Math.floor(Math.random() * 31);
-            slimeLeft += Math.floor(Math.random() * 31);
+                // 경기장 폭 계산 (결승선 위치 감안)
+                const trackWidth = document.getElementById('track').clientWidth - 80; 
 
-            // 화면에 반영
-            mushroom.style.left = mushroomLeft + 'px';
-            slime.style.left = slimeLeft + 'px';
+                // 결승선 통과 조건 체크
+                if (mushroomLeft >= trackWidth || slimeLeft >= trackWidth) {
+                    clearInterval(raceInterval);
+                    isRacing = false;
+                    document.getElementById('start-btn').disabled = false;
 
-            // 결승선 통과 조건 체크
-            if (mushroomLeft >= trackWidth || slimeLeft >= trackWidth) {
-                clearInterval(raceInterval);
-                isRacing = false;
-                document.getElementById('start-btn').disabled = false;
+                    let winner = "";
+                    if (mushroomLeft === slimeLeft) {
+                        winner = Math.random() > 0.5 ? "mushroom" : "slime";
+                    } else {
+                        winner = mushroomLeft > slimeLeft ? "mushroom" : "slime";
+                    }
 
-                let winner = "";
-                if (mushroomLeft === slimeLeft) {
-                    // 극악의 확률로 비겼을 때
-                    winner = Math.random() > 0.5 ? "mushroom" : "slime";
-                } else {
-                    winner = mushroomLeft > slimeLeft ? "mushroom" : "slime";
+                    announceWinner(winner, betTarget, betAmount);
                 }
-
-                announceWinner(winner, betTarget, betAmount);
-            }
-        }, 40); // 0.04초(200ms) 마다 실행
+            }, 20); 
+        }, 10);
     }
 
     function announceWinner(winner, betTarget, betAmount) {
@@ -203,12 +212,12 @@
             myMeso += winMeso;
             resultText.innerHTML = `결과: <span style="color:blue;">[${winnerName}]</span> 승리!<br>${winMeso}메소를 얻었습니다!`;
         } else {
-            resultText.innerHTML = `결과: <span style="color:blue;">[${winnerName}]</span> 승리!<br>${betAmount}메소를 잃었습니다.`;
+            resultText.innerHTML = `결과: <span style="color:red;">[${winnerName}]</span> 승리!<br>${betAmount}메소를 잃었습니다.`;
         }
 
         document.getElementById('meso-display').innerText = myMeso;
 
-        // 올인 구제책
+        // 신창섭의 올인 구제책
         if (myMeso < 100) {
             alert("메소를 모두 잃으셨군요? 신창섭께서 당신에게 500메소를 기부했습니다!");
             myMeso = 500;
