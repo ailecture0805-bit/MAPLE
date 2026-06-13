@@ -223,4 +223,84 @@
         }
 
         myMeso -= betAmount;
-        document.getElementById
+        document.getElementById('meso-display').innerText = myMeso;
+        isRacing = true;
+        document.getElementById('start-btn').disabled = true;
+        
+        document.getElementById('target-mushroom').disabled = true;
+        document.getElementById('target-slime').disabled = true;
+        
+        resultText.innerText = "우우우! 쌀쌀쌀!";
+
+        const mushroom = document.getElementById('mushroom');
+        const slime = document.getElementById('slime');
+        let mushroomLeft = 10;
+        let slimeLeft = 10;
+        
+        mushroom.style.transition = 'none';
+        slime.style.transition = 'none';
+        mushroom.style.left = mushroomLeft + 'px';
+        slime.style.left = slimeLeft + 'px';
+        
+        setTimeout(() => {
+            mushroom.style.transition = 'left 0.025s linear';
+            slime.style.transition = 'left 0.025s linear';
+            
+            raceInterval = setInterval(() => {
+                mushroomLeft += Math.floor(Math.random() * 16);
+                slimeLeft += Math.floor(Math.random() * 16);
+
+                mushroom.style.left = mushroomLeft + 'px';
+                slime.style.left = slimeLeft + 'px';
+
+                const trackWidth = document.getElementById('track').clientWidth - 80; 
+
+                if (mushroomLeft >= trackWidth || slimeLeft >= trackWidth) {
+                    clearInterval(raceInterval);
+                    isRacing = false;
+                    document.getElementById('start-btn').disabled = false;
+                    
+                    document.getElementById('target-mushroom').disabled = false;
+                    document.getElementById('target-slime').disabled = false;
+
+                    let winner = "";
+                    if (mushroomLeft === slimeLeft) {
+                        winner = Math.random() > 0.5 ? "mushroom" : "slime";
+                    } else {
+                        winner = mushroomLeft > slimeLeft ? "mushroom" : "slime";
+                    }
+
+                    announceWinner(winner, betTarget, betAmount);
+                }
+            }, 25); 
+        }, 10);
+    }
+
+    function announceWinner(winner, betTarget, betAmount) {
+        const resultText = document.getElementById('result-text');
+        const winnerName = winner === "mushroom" ? "주황버섯" : "슬라임";
+        
+        if (winner === betTarget) {
+            const winMeso = betAmount * 2;
+            myMeso += winMeso;
+            resultText.innerHTML = `<span style="color:blue;">[${winnerName}] 승리!</span><br>${winMeso}메소를 얻었습니다!`;
+        } else {
+            resultText.innerHTML = `<span style="color:red;">[${winnerName}] 승리!</span><br>${betAmount}메소를 잃었습니다.`;
+        }
+
+        document.getElementById('meso-display').innerText = myMeso;
+
+        if (myMeso < 100) {
+            alert("당신은 돈을 모두 잃었습니다.");
+            alert("신창섭 님께서 당신에게 200메소를 기부했습니다!");
+            
+            myMeso = 200; 
+            document.getElementById('meso-display').innerText = myMeso;
+            
+            selectTarget('mushroom');
+        }
+    }
+</script>
+
+</body>
+</html>
