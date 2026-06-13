@@ -2,24 +2,32 @@
 <html lang="ko">
 <head> 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>메이플 월드</title>
     <style>
+        /* 💡 모바일 화면 전체의 좌우 스크롤(흔들림)을 원천 차단 */
+        html, body {
+            overflow-x: hidden;
+            position: relative;
+            width: 100%;
+        }
+        
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f8ff;
             text-align: center;
             margin: 0;
             padding: 10px; 
+            box-sizing: border-box;
         }
         
         #game-container {
             max-width: 800px;
             width: 100%;
-            height: 620px; 
+            height: 680px; 
             margin: 0 auto;
             background: white;
-            padding: 15px;
+            padding: 15px 10px; /* 좌우 내부 여백을 줄여 공간 확보 */
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
             position: relative;
@@ -31,28 +39,31 @@
             font-weight: bold;
         }
         
+        /* 💡 모바일 가로폭을 절대 넘지 않도록 간격(gap) 조정 및 가로 크기 100% 고정 */
         .betting-panel {
             margin-bottom: 25px;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-wrap: nowrap; 
-            gap: 4px; 
+            gap: 3px; /* 버튼 사이 간격을 3px로 극강 압축 */
             width: 100%;
-            overflow-x: auto; 
+            box-sizing: border-box;
         }
         
+        /* 💡 버튼들의 내부 여백(패딩)을 줄여서 한 줄에 무조건 구겨 넣음 */
         input, select, button {
-            padding: 10px 8px; 
-            font-size: 14px; 
+            padding: 10px 4px; /* 좌우 패딩을 4px로 줄여 삐져나감 방지 */
+            font-size: 13px; /* 폰트 크기를 아주 미세하게 조절 */
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
             font-weight: bold; 
         }
         
+        /* 💡 타겟 버튼 너비 소폭 최적화 */
         .target-btn {
-            width: 85px;
+            width: 72px; /* 85px에서 72px로 줄여 공간 확보 */
             background-color: #f9f9f9;
             color: #333;
             cursor: pointer;
@@ -71,16 +82,17 @@
         }
 
         #bet-amount {
-            width: 70px; 
+            width: 62px; /* 70px에서 62px로 압축 */
             text-align: right;
-            padding-right: 6px; 
+            padding-right: 4px; 
             background-color: #f5f5f5;
             color: #333;
             flex-shrink: 0;
         }
 
+        /* 💡 조절 버튼들 너비 다이어트 */
         .bet-ctrl-btn {
-            width: 58px; 
+            width: 46px; /* 58px에서 46px로 콤팩트하게 줄임 */
             background-color: #e1e1e1;
             color: #333;
             cursor: pointer;
@@ -97,8 +109,8 @@
             color: white;
             cursor: pointer;
             border: none;
-            padding: 10px 12px;
-            margin-left: 4px;
+            padding: 10px 8px; /* 시작 버튼도 패딩 압축 */
+            margin-left: 2px;
             flex-shrink: 0;
         }
         button:disabled {
@@ -116,6 +128,7 @@
             border-radius: 5px;
             overflow: hidden;
             margin-top: 20px;
+            box-sizing: border-box;
         }
         .lane:first-child {
             border-bottom: 2px dashed #70ad47;
@@ -149,17 +162,16 @@
 
         .msg-area {
             margin-top: 25px;
-            min-height: 120px;
+            min-height: 160px;
             display: flex;
             flex-direction: column;
             justify-content: flex-start; 
             align-items: center;
         }
 
-        /* 💡 결과 텍스트 영역의 기본 폰트를 통째로 bold(두껍게) 처리 */
         #result-text {
             margin: 0;
-            font-size: 24px; 
+            font-size: 22px; /* 모바일 가독성을 위해 24px에서 22px로 미세 조정 */
             color: #333;
             line-height: 1.5;
             font-weight: bold; 
@@ -192,14 +204,14 @@
         <button id="target-mushroom" class="target-btn active" onclick="selectTarget('mushroom')">주황버섯</button>
         <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
 
-        <div style="margin-left: 4px;"></div>
+        <div style="margin-left: 2px;"></div>
         
         <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
         <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
         <button class="bet-ctrl-btn" onclick="changeBet(100)">+100</button>
         <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
 
-        <button id="start-btn" onclick="startRace()">경기 시작!</button>
+        <button id="start-btn" onclick="startRace()">시작</button>
     </div>
 
     <div id="track">
@@ -270,7 +282,6 @@
             return;
         }
         
-        // 💡 경고문구 자체에 font-weight:bold 부여, 하단 안내문구만 정상 두께 유지
         if (betAmount > myMeso) {
             resultText.innerHTML = `<span style="color:red; font-weight:bold;">보유한 메소보다 많이 걸 수 없습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "warning_reset";
@@ -332,7 +343,6 @@
         const resultText = document.getElementById('result-text');
         const winnerName = winner === "mushroom" ? "주황버섯" : "슬라임";
         
-        // 💡 승리 메시지 및 골드 정산 데이터 텍스트 전체에 강한 bold 자동 동기화
         if (winner === betTarget) {
             const winMeso = betAmount * 2;
             myMeso += winMeso;
@@ -369,7 +379,6 @@
             document.getElementById('click-overlay').style.display = "none";
         } 
         else if (currentPhase === "broke_step1") {
-            // 💡 파산 문구 전체 강력 bold 스케일링 보정
             resultText.innerHTML = `<span style="color:#cc0000; font-weight:bold;">당신은 돈을 모두 잃었습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_step2";
         } 
@@ -378,7 +387,6 @@
             document.getElementById('meso-display').innerText = myMeso;
             document.getElementById('bet-amount').value = 0; 
             
-            // 💡 구제금융 알림 강력 bold 스케일링 보정
             resultText.innerHTML = `<span style="color:#ff6600; font-weight:bold;">신창섭 님께서 당신에게 200메소를 기부했습니다!</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
             currentPhase = "broke_final";
         } 
@@ -392,8 +400,6 @@
             document.getElementById('click-overlay').style.display = "none";
         }
     }
-</script>
-
 </script>
 
 </body>
