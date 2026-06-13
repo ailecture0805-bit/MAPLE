@@ -58,7 +58,6 @@
         }
         .lane {
             position: relative;
-            height: 50%,;
             height: 100px;
             border-bottom: 2px dashed #70ad47;
             box-sizing: border-box;
@@ -68,13 +67,19 @@
         .lane:last-child {
             border-bottom: none;
         }
+        
+        /* 💡 캐릭터 스타일 (WebP 좌우반전 포함) */
         .character {
             position: absolute;
             left: 10px;
             width: 60px;
             height: 60px;
             transition: left 0.2s linear;
+            
+            /* 왼쪽을 바라보는 WebP 이미지를 오른쪽(진행 방향)으로 뒤집어줍니다 */
+            transform: scaleX(-1); 
         }
+        
         .finish-line {
             position: absolute;
             right: 20px;
@@ -203,7 +208,7 @@
 
         document.getElementById('meso-display').innerText = myMeso;
 
-        // 올인 났을 때 구제책 (우선은 칭찬과 함께 충전)
+        // 올인 구제책
         if (myMeso < 100) {
             alert("메소를 모두 잃으셨군요? 헤네시스의 장로스탄이 500메소를 기부해줬습니다!");
             myMeso = 500;
