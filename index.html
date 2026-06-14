@@ -20,7 +20,6 @@
             box-sizing: border-box;
         }
         
-        /* 💡 HALF 버튼 추가 및 UI 밸런스를 위해 가로폭 가이드라인 미세 조정 */
         #game-container {
             max-width: 500px; 
             width: 100%;
@@ -54,11 +53,11 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            gap: 4px; /* 버튼이 하나 더 늘어났으므로 간격을 4px로 조율 */
+            gap: 4px; 
         }
         
         input, select, button {
-            padding: 12px 2px; /* 가로 압축을 위해 패딩 조율 */
+            padding: 12px 2px; 
             font-size: 13px; 
             border-radius: 5px;
             border: 1px solid #ccc;
@@ -86,13 +85,21 @@
             box-shadow: 0 0 6px rgba(255, 153, 0, 0.4);
         }
 
+        /* 💡 오른쪽 정렬 버그 방지를 위해 지시자 및 패딩 강화 조치 */
         #bet-amount {
-            width: 55px; /* HALF 버튼 자리를 위해 인풋 너비 최적화 */
-            text-align: right;
-            padding-right: 4px; 
+            width: 55px; 
+            text-align: right !important; /* 강제 우측 정렬 강제 지정 */
+            padding-right: 8px !important; 
             background-color: #f5f5f5;
             color: #333;
             flex-shrink: 0;
+            -moz-appearance: textfield; /* 파이어폭스용 스핀 화살표 제거 */
+        }
+        /* 크롬, 사파리, 모바일 브라우저용 숫자창 스핀 화살표 숨기기 패치 */
+        #bet-amount::-webkit-outer-spin-button,
+        #bet-amount::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
 
         .bet-ctrl-btn {
@@ -213,11 +220,12 @@
             <button id="target-slime" class="target-btn" onclick="selectTarget('slime')">슬라임</button>
         </div>
 
-        <!-- 2층: 금액 배팅 (HALF 버튼 추가 배치 완료) -->
+        <!-- 2층: 금액 배팅 (MIN, HALF, MAX 순 정렬 배치 완료) -->
         <div class="panel-row">
             <input type="number" id="bet-amount" value="0" min="0" step="100" readonly>
             <button class="bet-ctrl-btn" onclick="changeBet(-100)">-100</button>
             <button class="bet-ctrl-btn" onclick="changeBet(100)">+100</button>
+            <button class="bet-ctrl-btn" style="background-color: #e6e6e6;" onclick="setBetMin()">MIN</button>
             <button class="bet-ctrl-btn" style="background-color: #ccf2ff;" onclick="setBetHalf()">HALF</button>
             <button class="bet-ctrl-btn" style="background-color: #ffcc00;" onclick="setBetMax()">MAX</button>
         </div>
@@ -278,12 +286,17 @@
         sendInput.value = newBet;
     }
 
-    // 💡 [HALF 버튼 로직] 전재산의 절반을 계산하고 100원 미만 단위(50원 등)는 내림 처리
+    // 💡 [MIN 버튼 기능] 배팅 금액을 단숨에 0으로 리셋
+    function setBetMin() {
+        if (isRacing || currentPhase !== "ready") return;
+        document.getElementById('bet-amount').value = 0;
+    }
+
     function setBetHalf() {
         if (isRacing || currentPhase !== "ready") return;
         const sendInput = document.getElementById('bet-amount');
         let halfMeso = myMeso / 2;
-        let finalHalfBet = Math.floor(halfMeso / 100) * 100; // 100원 단위 미만 버림
+        let finalHalfBet = Math.floor(halfMeso / 100) * 100; 
         sendInput.value = finalHalfBet < 0 ? 0 : finalHalfBet;
     }
 
@@ -294,7 +307,6 @@
         sendInput.value = maxBet < 0 ? 0 : maxBet;
     }
 
-    // 💡 몬스터들을 출발선(10px 지점)으로 정직하게 원위치시키는 공용 리셋 함수 생성
     function resetMonsters() {
         const mushroom = document.getElementById('mushroom');
         const slime = document.getElementById('slime');
@@ -333,7 +345,6 @@
         
         resultText.innerText = "우우우! 쌀쌀쌀!";
 
-        // 레이스 개시 직전 확실하게 포지션 초기화
         resetMonsters();
 
         const mushroom = document.getElementById('mushroom');
@@ -401,7 +412,7 @@
             resultText.innerHTML = "";
             currentPhase = "ready";
             document.getElementById('click-overlay').style.display = "none";
-            resetMonsters(); // 경고창 취소 시에도 복귀
+            resetMonsters();
         } 
         else if (currentPhase === "normal_reset") {
             resultText.innerHTML = "";
@@ -410,7 +421,7 @@
             document.getElementById('target-slime').disabled = false;
             currentPhase = "ready";
             document.getElementById('click-overlay').style.display = "none";
-            resetMonsters(); // 💡 일반 게임 종료 후 화면 클릭 시 제자리 복귀 적용
+            resetMonsters();
         } 
         else if (currentPhase === "broke_step1") {
             resultText.innerHTML = `<span style="color:#cc0000; font-weight:bold;">당신은 돈을 모두 잃었습니다.</span><br><span style="color:#888; font-size:14px; font-weight:normal; display:block; margin-top:5px;">[화면을 누르면 다음으로 넘어갑니다]</span>`;
@@ -432,7 +443,7 @@
             selectTarget('mushroom'); 
             currentPhase = "ready";
             document.getElementById('click-overlay').style.display = "none";
-            resetMonsters(); // 💡 파산 구제 단계가 완전히 끝난 뒤에도 제자리 복귀 적용
+            resetMonsters();
         }
     }
 </script>
